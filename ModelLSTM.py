@@ -183,12 +183,12 @@ callbacks = [checkpoint, tensorboard_callback, time_callback]
 
 model = make_model((trainX.shape[1], trainX.shape[2]), trainY.shape[-1], CuDNNLSTM)
 
-history = model.fit(trainX, trainY, epochs=2, batch_size=512, sample_weight=weights, callbacks=callbacks)
+history = model.fit(trainX, trainY, epochs=200, batch_size=512, sample_weight=weights, callbacks=callbacks)
 
 
 output = model.predict_classes(testX)
 print(confusion_matrix(testY.argmax(axis=1), output))
-print((output == testY.argmax(axis=1)).sum()/len(output))
+print((output == testY.argmax(axis=1)).sum()/len(output) * 100)
 
 '''
 summed = pd.DataFrame({'record':record_list, 'predictions':output, 'label':testY.argmax(axis=1)}).groupby('record').mean()
