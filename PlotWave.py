@@ -4,7 +4,7 @@ import wave
 import sys
 
 
-spf = wave.open("/Users/ashwini/Downloads/heartdisease-data/training-a/a0009.wav", "r")
+spf = wave.open("/Users/ashwini/ECG-HeartDisease/data/training-a/a0009.wav", "r")
 
 # Extract Raw Audio from Wav File
 signal = spf.readframes(-1)
