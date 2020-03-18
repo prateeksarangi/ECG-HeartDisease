@@ -9,26 +9,19 @@ import pandas as pd
 import math
 from keras.models import Sequential
 from keras.layers import Dense
-<<<<<<< HEAD
 from keras.callbacks import ModelCheckpoint
 from sklearn.utils import shuffle
-=======
 from keras.layers import Dropout, Input
 from keras.layers import CuDNNLSTM, LSTM
 from keras.callbacks import ModelCheckpoint
 from sklearn.utils import shuffle
 from sklearn.metrics import confusion_matrix
->>>>>>> 6fbd11610d97c55f6b2e71447e7e40a1a8a37818
 import time
 import keras
 from keras.layers import Conv1D, MaxPooling1D
 from keras.layers import Activation, Dropout, Flatten, Dense
-<<<<<<< HEAD
-
-=======
 from keras import backend as K
 import os
->>>>>>> 6fbd11610d97c55f6b2e71447e7e40a1a8a37818
 
 
 
@@ -207,7 +200,7 @@ model.add(Activation('sigmoid'))
 
 model.compile(loss='categorical_crossentropy', optimizer='adam' , metrics=['accuracy'])
 
-model.fit(trainX, trainY, epochs=2, batch_size=512, sample_weight=weights, callbacks=callbacks)
+history = model.fit(trainX, trainY, epochs=2, batch_size=512, sample_weight=weights, callbacks=callbacks)
 output = model.predict_classes(testX)
 
 #print(confusion_matrix(testY.argmax(axis=1), output))
@@ -220,4 +213,20 @@ print("Control accuracy: "+  str((control['predictions'] <= 0.5).sum()/control.s
 
 infarct = summed.loc[summed['label'] == 1]
 print("Infarct accuracy: "+  str((infarct['predictions'] > 0.5).sum()/infarct.shape[0]))
+
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('Model accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'], loc='upper left')
+plt.show()
 '''
+
+# Plot training & validation loss values
+plt.plot(history.history['loss'])
+plt.title('Model loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train'], loc='upper left')
+plt.show()

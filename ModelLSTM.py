@@ -111,20 +111,16 @@ def make_set(df_data, channels, label_map, record_id, window_size=2048):
 df_patient_records = df_records.set_index('patient')
 df_train_patients = df_patient_records.loc[train_patients]
 df_test_patients = df_patient_records.loc[test_patients]
-window_size = 2048#df_records['signal_length'].min()
-#trainX, trainY, _ = make_set(df_train_patients, channels, label_map, False, window_size)
+window_size = 2048
 testX, testY, record_list = make_set(df_test_patients, channels, label_map, True, window_size)
-
-
-# In[11]:
 
 
 def make_model(input_shape, output_dim, lstm_layer, dropout=0.2):
     print("model dim: ", input_shape, output_dim)
     model = Sequential()
-    model.add(lstm_layer(256, return_sequences=True, input_shape=input_shape, batch_size=None))
+    model.add(LSTM(256, return_sequences=True, input_shape=input_shape, batch_size=None))
     model.add(Dropout(dropout))
-    model.add(lstm_layer(128, return_sequences=True))
+    model.add(LSTM(128, return_sequences=True))
     model.add(Dropout(dropout))
     model.add(LSTM(64))
     model.add(Dropout(dropout))
@@ -132,10 +128,6 @@ def make_model(input_shape, output_dim, lstm_layer, dropout=0.2):
     model.compile(loss='categorical_crossentropy', optimizer='adam')
     
     return model
-
-
-# In[12]:
-
 
 class TimeHistory(keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
@@ -146,9 +138,6 @@ class TimeHistory(keras.callbacks.Callback):
 
     def on_epoch_end(self, batch, logs={}):
         self.times.append(time.time() - self.epoch_time_start)
-
-
-# In[13]:
 
 
 np.random.seed(1337)
@@ -166,18 +155,15 @@ for label in selected_labels:
 df_patient_records = df_records.set_index('patient')
 df_train_patients = df_patient_records.loc[train_patients]
 df_test_patients = df_patient_records.loc[test_patients]
-window_size = 2048#df_records['signal_length'].min()
+window_size = 2048
 trainX, trainY, _ = make_set(df_train_patients, channels, label_map, False, window_size)
 testX, testY, record_list = make_set(df_test_patients, channels, label_map, True, window_size)
 
-#Shuffle order of train set
 trainX, trainY = shuffle(trainX, trainY)
 
-#Since we have a large class inbalance we need to udjust the weights for it.
 fractions = 1-trainY.sum(axis=0)/len(trainY)
 weights = fractions[trainY.argmax(axis=1)]
 
-#df_selected['patient'].sample(len())
 
 filepath = os.path.join('models', "weights-improvement-{epoch:02d}-bigger.hdf5")
 checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
@@ -197,30 +183,14 @@ callbacks = [checkpoint, tensorboard_callback, time_callback]
 
 model = make_model((trainX.shape[1], trainX.shape[2]), trainY.shape[-1], CuDNNLSTM)
 
-model.fit(trainX, trainY, epochs=50, batch_size=512, sample_weight=weights, callbacks=callbacks)
-
-
-# In[ ]:
+history = model.fit(trainX, trainY, epochs=2, batch_size=512, sample_weight=weights, callbacks=callbacks)
 
 
 output = model.predict_classes(testX)
+print(confusion_matrix(testY.argmax(axis=1), output))
+print((output == testY.argmax(axis=1)).sum()/len(output))
 
-
-# In[ ]:
-
-
-confusion_matrix(testY.argmax(axis=1), output)
-
-
-# In[ ]:
-
-
-(output == testY.argmax(axis=1)).sum()/len(output)
-
-
-# In[ ]:
-
-
+'''
 summed = pd.DataFrame({'record':record_list, 'predictions':output, 'label':testY.argmax(axis=1)}).groupby('record').mean()
 control = summed.loc[summed['label'] == 0]
 print("Control accuracy: "+  str((control['predictions'] <= 0.5).sum()/control.shape[0]))
@@ -228,43 +198,18 @@ print("Control accuracy: "+  str((control['predictions'] <= 0.5).sum()/control.s
 infarct = summed.loc[summed['label'] == 1]
 print("Infarct accuracy: "+  str((infarct['predictions'] > 0.5).sum()/infarct.shape[0]))
 
-
-# In[ ]:
-
-
-control.hist()
-
-
-# In[ ]:
-
-
-channel = channels[1]
-plt.plot(df_healthy.iloc[3][channel][0:window_size])
-plt.plot(df_myo.iloc[4][channel][0:window_size])
-plt.plot(df_dys.iloc[2][channel][0:window_size])
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('Model accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'], loc='upper left')
 plt.show()
-
-
-# In[ ]:
-
-
-record.label = comments_to_dict(record.comments)['Reason for admission']
-
-
-# In[ ]:
-
-
-record.label
-
-
-# In[ ]:
-
-
-comments_to_dict(record.comments)
-
-
-# In[ ]:
-
-
-io.dl_database(db, 'data', records)
-
+'''
+# Plot training & validation loss values
+plt.plot(history.history['loss'])
+plt.title('Model loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train'], loc='upper left')
+plt.show()
