@@ -165,6 +165,7 @@ trainX, trainY = shuffle(trainX, trainY)
 fractions = 1-trainY.sum(axis=0)/len(trainY)
 weights = fractions[trainY.argmax(axis=1)]
 
+
 filepath = os.path.join('models', "weights-improvement-{epoch:02d}-bigger.hdf5")
 checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
 
@@ -179,7 +180,9 @@ else:
 tensorboard_logs = os.path.join(model_folder, "%inth_run"%n_logs)
 tensorboard_callback = keras.callbacks.TensorBoard(log_dir=tensorboard_logs, write_graph=False)
 time_callback = TimeHistory()
+
 callbacks = [checkpoint, tensorboard_callback, time_callback]
+
 
 model = Sequential()
 
