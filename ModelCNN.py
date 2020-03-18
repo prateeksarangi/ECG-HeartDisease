@@ -170,7 +170,7 @@ filepath = os.path.join('models', "weights-improvement-{epoch:02d}-bigger.hdf5")
 checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
 
 model_name = 'two_classes'
-model_folder = os.path.join('tensorlogs', model_name + "-logs/")
+model_folder = os.path.join('tensorlogs', model_name + "-logs\\")
 
 if not os.path.isdir(model_folder):
     n_logs = 0
@@ -226,10 +226,10 @@ plt.legend(['Train', 'Test'], loc='upper left')
 plt.show()
 '''
 
-# Plot training & validation loss values
+# Plot training error values
 plt.plot(history.history['loss'])
-plt.title('Model loss')
-plt.ylabel('Loss')
+plt.title('Mean Square Error of the Model')
+plt.ylabel('MSE')
 plt.xlabel('Epoch')
-plt.legend(['Train'], loc='upper left')
+plt.legend(['Train'], loc='upper right')
 plt.show()
