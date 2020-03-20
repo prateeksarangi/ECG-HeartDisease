@@ -190,22 +190,7 @@ output = model.predict_classes(testX)
 print(confusion_matrix(testY.argmax(axis=1), output))
 print((output == testY.argmax(axis=1)).sum()/len(output) * 100)
 
-'''
-summed = pd.DataFrame({'record':record_list, 'predictions':output, 'label':testY.argmax(axis=1)}).groupby('record').mean()
-control = summed.loc[summed['label'] == 0]
-print("Control accuracy: "+  str((control['predictions'] <= 0.5).sum()/control.shape[0]))
 
-infarct = summed.loc[summed['label'] == 1]
-print("Infarct accuracy: "+  str((infarct['predictions'] > 0.5).sum()/infarct.shape[0]))
-
-plt.plot(history.history['accuracy'])
-plt.plot(history.history['val_accuracy'])
-plt.title('Model accuracy')
-plt.ylabel('Accuracy')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Test'], loc='upper left')
-plt.show()
-'''
 # Plot training error values
 plt.plot(history.history['loss'])
 plt.title('Mean Square Error of the Model')
