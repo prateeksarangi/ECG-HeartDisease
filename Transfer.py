@@ -170,7 +170,7 @@ filepath = os.path.join('models', "weights-improvement-{epoch:02d}-bigger.hdf5")
 checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
 
 model_name = 'two_classes'
-model_folder = os.path.join('tensorlogs', model_name + "-logs\\")
+model_folder = os.path.join('tensorlogs', model_name + "-logs/")
 
 if not os.path.isdir(model_folder):
     n_logs = 0
@@ -183,48 +183,16 @@ time_callback = TimeHistory()
 
 callbacks = [checkpoint, tensorboard_callback, time_callback]
 
-
-model = Sequential()
-
-model.add(Conv1D(256, 3, input_shape=(trainX.shape[1], trainX.shape[2])))
-model.add(Activation('softmax'))
-model.add(MaxPooling1D(pool_size = 2))
-
-model.add(Conv1D(128, 3))
-model.add(Activation('softmax'))
-model.add(MaxPooling1D(pool_size = 2))
-
-model.add(Flatten())
-model.add(Dense(64))
-model.add(Activation('relu'))
-model.add(Dropout(0.5))
-model.add(Dense(2))
-model.add(Activation('sigmoid'))
+keras.applications.resnet_v2.ResNet50V2(include_top=True, 
+    weights=None, input_shape=(trainX.shape[1], trainX.shape[2], ), 
+    pooling='avg', classes=2)
 
 model.compile(loss='categorical_crossentropy', optimizer='adam' , metrics=['accuracy'])
 
-history = model.fit(trainX, trainY, epochs=100, batch_size=512, sample_weight=weights, callbacks=callbacks)
+history = model.fit(trainX, trainY, epochs=2, batch_size=512, sample_weight=weights, callbacks=callbacks)
 output = model.predict_classes(testX)
 
-#print(confusion_matrix(testY.argmax(axis=1), output))
 print((output == testY.argmax(axis=1)).sum()/len(output) * 100)
-
-'''
-summed = pd.DataFrame({'record':record_list, 'predictions':output, 'label':testY.argmax(axis=1)}).groupby('record').mean()
-control = summed.loc[summed['label'] == 0]
-print("Control accuracy: "+  str((control['predictions'] <= 0.5).sum()/control.shape[0]))
-
-infarct = summed.loc[summed['label'] == 1]
-print("Infarct accuracy: "+  str((infarct['predictions'] > 0.5).sum()/infarct.shape[0]))
-
-plt.plot(history.history['accuracy'])
-plt.plot(history.history['val_accuracy'])
-plt.title('Model accuracy')
-plt.ylabel('Accuracy')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Test'], loc='upper left')
-plt.show()
-'''
 
 # Plot training error values
 plt.plot(history.history['loss'])
