@@ -185,11 +185,23 @@ model = make_model((trainX.shape[1], trainX.shape[2]), trainY.shape[-1], CuDNNLS
 
 history = model.fit(trainX, trainY, epochs=200, batch_size=512, sample_weight=weights, callbacks=callbacks)
 
+from sklearn.metrics import accuracy_score, confusion_matrix
+from mlxtend.plotting import plot_confusion_matrix
+
 
 output = model.predict_classes(testX)
 print(confusion_matrix(testY.argmax(axis=1), output))
 print((output == testY.argmax(axis=1)).sum()/len(output) * 100)
 
+
+
+conf_mat = confusion_matrix(testY.argmax(axis=1), output)
+true_negative, false_postive, false_negative, true_posiitve = conf_mat.ravel()
+
+plot_confusion_matrix(conf_mat,figsize=(12,8), hide_ticks=True,cmap=plt.cm.Blues)
+plt.xticks(range(2), ['Normal', 'Pneumonia'], fontsize=16)
+plt.yticks(range(2), ['Normal', 'Pneumonia'], fontsize=16)
+plt.show()
 
 # Plot training error values
 plt.plot(history.history['loss'])
@@ -198,3 +210,19 @@ plt.ylabel('MSE')
 plt.xlabel('Epoch')
 plt.legend(['Train'], loc='upper right')
 plt.show()
+
+print('\n','-'*20,' TEST METRICS', '-'*20)
+precision = true_posiitve / (true_posiitve + false_postive) * 100
+recall = true_posiitve / (true_posiitve + false_negative) * 100
+sensitivity = true_posiitve / (true_posiitve + false_negative) * 100
+specificity = true_negative / (true_negative + false_postive) * 100
+fpr = false_postive / (false_postive + true_negative) * 100
+fnr = false_negative / (false_negative + true_posiitve) * 100
+
+print('\tPrecision: {}%'.format(precision))
+print('\tRecall: {}%'.format(recall))
+print('\tSensitivity: {}%'.format(sensitivity))
+print('\tSpecificity: {}%'.format(specificity))
+print('\tFPR: {}%'.format(fpr))
+print('\tFNR: {}%'.format(fnr))
+print('\tF1-score: {}'.format(2*precision*recall/(precision+recall)))
