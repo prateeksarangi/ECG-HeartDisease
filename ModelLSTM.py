@@ -143,7 +143,7 @@ class TimeHistory(keras.callbacks.Callback):
 np.random.seed(1337)
 test_patients = []
 train_patients = []
-test_size = 0.2
+test_size = 0.3
 channels
 for label in selected_labels:
     df_selected = df_records.loc[df_records['label'] == label]
