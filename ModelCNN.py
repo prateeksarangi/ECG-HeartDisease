@@ -186,11 +186,11 @@ callbacks = [checkpoint, tensorboard_callback, time_callback]
 
 model = Sequential()
 
-model.add(Conv1D(256, 3, input_shape=(trainX.shape[1], trainX.shape[2])))
+model.add(Conv1D(256, 3, input_shape=(trainX.shape[1], trainX.shape[2])), bias = True)
 model.add(Activation('softmax'))
 model.add(MaxPooling1D(pool_size = 2))
 
-model.add(Conv1D(128, 3))
+model.add(Conv1D(128, 3), bias = True)
 model.add(Activation('softmax'))
 model.add(MaxPooling1D(pool_size = 2))
 
